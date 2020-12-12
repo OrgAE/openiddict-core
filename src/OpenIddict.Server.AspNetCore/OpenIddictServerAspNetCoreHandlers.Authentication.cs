@@ -114,7 +114,8 @@ namespace OpenIddict.Server.AspNetCore
 
                         context.Reject(
                             error: Errors.InvalidRequest,
-                            description: SR.FormatID2052(Parameters.RequestId));
+                            description: SR.FormatID2052(Parameters.RequestId),
+                            uri: SR.FormatID8000(SR.ID2052));
 
                         return;
                     }
@@ -131,7 +132,8 @@ namespace OpenIddict.Server.AspNetCore
 
                         context.Reject(
                             error: Errors.InvalidRequest,
-                            description: SR.FormatID2052(Parameters.RequestId));
+                            description: SR.FormatID2052(Parameters.RequestId),
+                            uri: SR.FormatID8000(SR.ID2052));
 
                         return;
                     }
@@ -450,7 +452,7 @@ namespace OpenIddict.Server.AspNetCore
                     var location = QueryHelpers.AddQueryString(context.RedirectUri,
                         from parameter in context.Response.GetParameters()
                         let values = (string?[]?) parameter.Value
-                        where values != null
+                        where values is not null
                         from value in values
                         where !string.IsNullOrEmpty(value)
                         select KeyValuePair.Create(parameter.Key, value));
