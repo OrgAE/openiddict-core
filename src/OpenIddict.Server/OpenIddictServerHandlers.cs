@@ -998,7 +998,7 @@ namespace OpenIddict.Server
                             return;
                         }
 
-                        // If the device code is marked as rejected, return an authorization_pending error.
+                        // If the device code is marked as rejected, return an access_denied error.
                         if (await _tokenManager.HasStatusAsync(token, Statuses.Rejected))
                         {
                             context.Logger.LogError(SR.GetResourceString(SR.ID6004), identifier);
@@ -3029,7 +3029,7 @@ namespace OpenIddict.Server
         }
 
         /// <summary>
-        /// Contains the logic responsible of creating an access token entry.
+        /// Contains the logic responsible of creating a device code entry.
         /// Note: this handler is not used when the degraded mode is enabled.
         /// </summary>
         public class CreateDeviceCodeEntry : IOpenIddictServerHandler<ProcessSignInContext>

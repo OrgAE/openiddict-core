@@ -13,12 +13,13 @@ using System.Text.Json;
 using OpenIddict.Abstractions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using Properties = OpenIddict.Validation.DataProtection.OpenIddictValidationDataProtectionConstants.Properties;
+using SR = OpenIddict.Abstractions.OpenIddictResources;
 
 namespace OpenIddict.Validation.DataProtection
 {
     public class OpenIddictValidationDataProtectionFormatter : IOpenIddictValidationDataProtectionFormatter
     {
-        public ClaimsPrincipal? ReadToken(BinaryReader reader)
+        public ClaimsPrincipal ReadToken(BinaryReader reader)
         {
             if (reader is null)
             {
@@ -26,10 +27,6 @@ namespace OpenIddict.Validation.DataProtection
             }
 
             var (principal, properties) = Read(reader);
-            if (principal is null)
-            {
-                return null;
-            }
 
             // Tokens serialized using the ASP.NET Core Data Protection stack are compound
             // of both claims and special authentication properties. To ensure existing tokens
@@ -57,13 +54,13 @@ namespace OpenIddict.Validation.DataProtection
                 .SetClaim(Claims.Private.TokenId, GetProperty(properties, Properties.InternalTokenId))
                 .SetClaim(Claims.Private.UserCodeLifetime, GetProperty(properties, Properties.UserCodeLifetime));
 
-            static (ClaimsPrincipal? principal, IReadOnlyDictionary<string, string> properties) Read(BinaryReader reader)
+            static (ClaimsPrincipal principal, IReadOnlyDictionary<string, string> properties) Read(BinaryReader reader)
             {
                 // Read the version of the format used to serialize the ticket.
                 var version = reader.ReadInt32();
                 if (version != 5)
                 {
-                    return (null, ImmutableDictionary.Create<string, string>());
+                    throw new InvalidOperationException(SR.GetResourceString(SR.ID0287));
                 }
 
                 // Read the authentication scheme associated to the ticket.
@@ -71,10 +68,6 @@ namespace OpenIddict.Validation.DataProtection
 
                 // Read the number of identities stored in the serialized payload.
                 var count = reader.ReadInt32();
-                if (count < 0)
-                {
-                    return (null, ImmutableDictionary.Create<string, string>());
-                }
 
                 var identities = new ClaimsIdentity[count];
                 for (var index = 0; index != count; ++index)
@@ -147,9 +140,9 @@ namespace OpenIddict.Validation.DataProtection
             {
                 // Read the version of the format used to serialize the properties.
                 var version = reader.ReadInt32();
-                if (version != 5)
+                if (version != 1)
                 {
-                    return ImmutableDictionary.Create<string, string>();
+                    throw new InvalidOperationException(SR.GetResourceString(SR.ID0287));
                 }
 
                 var count = reader.ReadInt32();
